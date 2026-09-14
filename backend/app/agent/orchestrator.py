@@ -25,15 +25,24 @@ def _extract_json_object(text: str) -> dict[str, Any]:
     return json.loads(text[start : end + 1])
 
 
-def run_agent(db: Session, scenario_type: str, situation: dict) -> tuple[AgentDecision, list[dict]]:
+def run_agent(
+    db: Session,
+    scenario_type: str,
+    situation: dict,
+    revision_note: str | None = None,
+) -> tuple[AgentDecision, list[dict]]:
     settings = get_settings()
     client = genai.Client(api_key=settings.gemini_api_key)
     tool = types.Tool(function_declarations=[
         types.FunctionDeclaration(**decl) for decl in TOOL_FUNCTION_DECLARATIONS
     ])
 
+    situation_prompt = build_situation_prompt(scenario_type, situation)
+    if revision_note:
+        situation_prompt = f"{situation_prompt}\n\n{revision_note}"
+
     contents: list[types.Content] = [
-        types.Content(role="user", parts=[types.Part(text=build_situation_prompt(scenario_type, situation))]),
+        types.Content(role="user", parts=[types.Part(text=situation_prompt)]),
     ]
     tool_call_log: list[dict[str, Any]] = []
 
