@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
@@ -6,6 +7,17 @@ from app.domain.models import PurchaseOrderOut
 from app.services import purchase_order_service
 
 router = APIRouter(prefix="/api/purchase-orders", tags=["purchase-orders"])
+
+
+class CreateFromProposalRequest(BaseModel):
+    sku: str
+    supplier_id: int
+    qty: int
+
+
+@router.post("/from-proposal", response_model=PurchaseOrderOut)
+def create_purchase_order_from_proposal(body: CreateFromProposalRequest, db: Session = Depends(get_db)):
+    return purchase_order_service.create(db, body.sku, body.supplier_id, body.qty)
 
 
 @router.post("/{po_id}/approve", response_model=PurchaseOrderOut)

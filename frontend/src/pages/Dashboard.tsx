@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { listAgentRuns, runRecommendationReview, runSupplierShortfall, approvePurchaseOrder, rejectPurchaseOrder } from "../api/client";
+import { listAgentRuns, runRecommendationReview, runSupplierShortfall, approvePurchaseOrder, rejectPurchaseOrder, createPurchaseOrderFromProposal } from "../api/client";
 import type { AgentRun } from "../types";
 import { DecisionCard } from "../components/DecisionCard";
 
@@ -39,10 +39,10 @@ export function Dashboard() {
 
   async function handleApprove(agentRun: AgentRun) {
     const action = agentRun.decision?.proposed_action;
-    if (!action?.qty || !action.product_sku) return;
-    // In this prototype the approve action targets a PO already implied by the proposal;
-    // for create_po proposals we don't yet have a PO id, so approval here is a no-op placeholder
-    // demonstrating the human gate — full PO creation-on-approve is a natural next iteration.
+    if (action?.action_type === "create_po" && action.product_sku && action.supplier_id && action.qty) {
+      const po = await createPurchaseOrderFromProposal(action.product_sku, action.supplier_id, action.qty);
+      await approvePurchaseOrder(po.id);
+    }
     await refresh();
   }
 

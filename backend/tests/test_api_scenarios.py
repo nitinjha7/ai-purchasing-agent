@@ -40,3 +40,25 @@ def test_recommendation_review_endpoint_returns_agent_run(monkeypatch, db_sessio
     assert body["decision"]["decision"] == "accept"
 
     app.dependency_overrides.clear()
+
+
+def test_create_purchase_order_from_proposal_endpoint(db_session):
+    from app.api import deps
+    from app.db.models import Product, Supplier
+
+    app.dependency_overrides[deps.get_db] = lambda: db_session
+    Base.metadata.create_all(bind=db_session.get_bind())
+
+    db_session.add(Product(sku="SKU-PROP", name="Prop", category="general", unit_cost=1.0))
+    supplier = Supplier(name="S", product_sku="SKU-PROP", lead_time_days=5, min_order_qty=10,
+                         reliability_score=0.9, unit_price=1.0, fulfillment_cap_qty=None)
+    db_session.add(supplier)
+    db_session.commit()
+
+    client = TestClient(app)
+    response = client.post("/api/purchase-orders/from-proposal", json={"sku": "SKU-PROP", "supplier_id": supplier.id, "qty": 100})
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "pending_approval"
+
+    app.dependency_overrides.clear()
