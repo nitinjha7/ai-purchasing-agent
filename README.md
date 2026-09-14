@@ -19,6 +19,8 @@ cp .env.example .env  # then paste your GEMINI_API_KEY into .env
 uvicorn app.main:app --reload --port 8000
 ```
 
+The app creates any missing tables on startup, so no migration step is required to run it. Migrations are also available if you prefer to manage the schema explicitly — `alembic upgrade head` (run from `backend/`) applies the baseline schema to the database named in `DATABASE_URL`.
+
 Frontend (separate shell):
 
 ```bash
@@ -49,9 +51,13 @@ Requires a real `GEMINI_API_KEY` (this hits the live model — no mocking, by de
 
 ## How decisions are validated
 
-Every agent decision goes through an **independent, code-based validator** (`app/services/validation_service.py`) before it can be acted on — the agent's own arithmetic is never trusted. The validator checks: quantity positivity, supplier minimum order quantity, budget sufficiency, and storage capacity. If validation fails, the reasoning is surfaced to the buyer as-is rather than silently overridden.
+Every agent decision goes through an **independent, code-based validator** (`app/services/validation_service.py`) before it can be acted on — the agent's own arithmetic is never trusted. The validator checks: quantity positivity, supplier minimum order quantity, budget sufficiency, and storage capacity. For an `amend_po` proposal the product and supplier are read off the referenced purchase order, so the same checks apply.
 
-Purchase orders are never written to the database by the agent directly — every `create_po`/`amend_po` proposal requires human approval via the UI (`Approve`/`Reject` buttons). Approving a `create_po` proposal creates the PO row and immediately approves it against the mock ERP (`supplier_service.submit_to_supplier`); approving/rejecting an existing PO from the Purchase Orders tab acts on that PO directly. The mock ERP can return a partial fulfillment (configured per-supplier in `seed_data.py`), which automatically re-invokes the agent with the updated situation — this closes the feedback loop end-to-end rather than assuming the first action always succeeds.
+If validation fails, the violations are fed back to the agent as extra context and it gets **exactly one chance to revise** its proposal. The revised decision and verdict are what get persisted, with the tool-call logs of both attempts concatenated so the buyer sees the whole investigation. If the revision is still invalid, the failure is surfaced to the buyer as-is rather than silently overridden or retried indefinitely.
+
+Purchase orders are never written to the database by the agent directly — every `create_po`/`amend_po` proposal requires human approval via the UI (`Approve`/`Reject` buttons). Approval posts only the agent run id: the server re-reads the proposal from the stored run, re-runs the validator, and only then writes, so nothing the client sends can bypass a constraint. Approving a `create_po` proposal creates the PO row and immediately approves it against the mock ERP (`supplier_service.submit_to_supplier`); approving an `amend_po` proposal updates the referenced PO's quantity; `Reject` records the buyer's decision on the agent run and creates nothing. Approving/rejecting an existing PO from the Purchase Orders tab acts on that PO directly.
+
+The mock ERP can return a partial fulfillment (configured per-supplier via `fulfillment_cap_qty` in `seed_data.py`). When a PO approval comes back partially fulfilled, the approve endpoint automatically re-invokes the agent on the shortfall, producing a new agent run in the dashboard — this closes the feedback loop end-to-end rather than assuming the first action always succeeds.
 
 ## Known simplifications
 
