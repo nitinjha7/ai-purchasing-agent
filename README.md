@@ -63,3 +63,6 @@ The mock ERP can return a partial fulfillment (configured per-supplier via `fulf
 
 - Single hardcoded budget period (`"2026-09"`) rather than a real fiscal calendar.
 - Scenarios 3 and 4 are not implemented; the tool/validator architecture would extend to them directly (e.g. a `demand_spike_detected` situation type and a constraint-conflict resolution path).
+- The `/approve` endpoint's automatic re-invocation of the agent on partial fulfillment runs synchronously in the request and isn't wrapped in its own error boundary: a Gemini failure at that exact point returns an error to the client even though the purchase order itself was already approved and submitted successfully. Checking the Purchase Orders tab shows the true state in that case.
+- Re-approving or re-amending the same agent run id more than once is not guarded server-side (the UI hides the button after one use, but the API itself doesn't reject a replay). Each replay still passes through the same budget/storage/MOQ validation, so it can't produce an order the constraints wouldn't otherwise allow.
+- The Dashboard's approve/reject actions don't surface a validation failure or network error in the UI beyond a browser console error; check the console if a click appears to do nothing.
