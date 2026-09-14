@@ -1,0 +1,11 @@
+{
+  "name": "scenario1_moq_forces_modify",
+  "description": "Recommended qty is below the primary supplier's minimum order quantity — expect the agent to raise the qty to at least MOQ or flag it, not silently accept a sub-MOQ order.",
+  "scenario_type": "recommendation_review",
+  "input": {"sku": "SKU-100", "recommended_qty": 30},
+  "expect": {
+    "decision_in": ["modify", "investigate", "reject"],
+    "must_call_tools": ["get_supplier_terms"],
+    "validator_is_valid": true
+  }
+}

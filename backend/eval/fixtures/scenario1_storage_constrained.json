@@ -1,0 +1,11 @@
+{
+  "name": "scenario1_storage_constrained",
+  "description": "SKU-300 has only 50 units of free storage; recommending 300 units should be modified down or rejected.",
+  "scenario_type": "recommendation_review",
+  "input": {"sku": "SKU-300", "recommended_qty": 300},
+  "expect": {
+    "decision_in": ["modify", "reject", "investigate"],
+    "must_call_tools": ["get_product_snapshot"],
+    "validator_is_valid": true
+  }
+}

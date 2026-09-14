@@ -1,0 +1,11 @@
+{
+  "name": "scenario1_accept",
+  "description": "Healthy budget and storage, recommendation within reasonable bounds — expect accept or modify, not reject.",
+  "scenario_type": "recommendation_review",
+  "input": {"sku": "SKU-100", "recommended_qty": 300},
+  "expect": {
+    "decision_in": ["accept", "modify"],
+    "must_call_tools": ["get_product_snapshot", "get_demand_forecast", "get_budget_status"],
+    "validator_is_valid": true
+  }
+}

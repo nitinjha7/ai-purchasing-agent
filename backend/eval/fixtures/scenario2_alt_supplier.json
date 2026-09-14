@@ -1,0 +1,11 @@
+{
+  "name": "scenario2_alt_supplier",
+  "description": "Existing PO for 500 units of SKU-200 from the capped supplier only fulfils 250 — an alternate uncapped supplier exists, expect the agent to consider sourcing the remainder from it.",
+  "scenario_type": "supplier_shortfall",
+  "input": {"po_id": 1, "fulfilled_qty": 250},
+  "expect": {
+    "decision_in": ["modify", "investigate"],
+    "must_call_tools": ["list_alternate_suppliers"],
+    "validator_is_valid": null
+  }
+}

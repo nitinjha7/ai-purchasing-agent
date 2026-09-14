@@ -1,0 +1,11 @@
+{
+  "name": "scenario1_budget_constrained",
+  "description": "SKU-200 has a tight grocery budget; recommending 800 units at ~8.5 unit cost exceeds it — expect modify or reject.",
+  "scenario_type": "recommendation_review",
+  "input": {"sku": "SKU-200", "recommended_qty": 800},
+  "expect": {
+    "decision_in": ["modify", "reject", "investigate"],
+    "must_call_tools": ["get_budget_status"],
+    "validator_is_valid": true
+  }
+}

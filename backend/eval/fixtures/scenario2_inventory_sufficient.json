@@ -1,0 +1,11 @@
+{
+  "name": "scenario2_inventory_sufficient",
+  "description": "Shortfall on SKU-300 but demand gap is already small after partial fulfillment plus on-hand stock — expect the agent to recognize inventory may be sufficient rather than always sourcing more.",
+  "scenario_type": "supplier_shortfall",
+  "input": {"po_id": 2, "fulfilled_qty": 140},
+  "expect": {
+    "decision_in": ["accept", "reject", "investigate"],
+    "must_call_tools": ["get_demand_forecast"],
+    "validator_is_valid": null
+  }
+}
