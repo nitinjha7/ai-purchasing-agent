@@ -61,6 +61,6 @@ def run_agent(db: Session, scenario_type: str, situation: dict) -> tuple[AgentDe
             result = dispatch_tool_call(db, call.name, args)
             tool_call_log.append({"tool": call.name, "args": args, "result": result})
             response_parts.append(types.Part(function_response=types.FunctionResponse(name=call.name, response=result)))
-        contents.append(types.Content(role="tool", parts=response_parts))
+        contents.append(types.Content(role="user", parts=response_parts))
 
     raise AgentDecisionError(f"Agent did not converge on a decision within {MAX_TURNS} turns")
