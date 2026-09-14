@@ -25,3 +25,25 @@ def test_get_forecast_returns_data(db_session, product_with_demand_and_open_po):
 def test_net_demand_gap_subtracts_on_hand_and_open_pos(db_session, product_with_demand_and_open_po):
     # forecast 300 - on_hand 50 - open_po 100 = 150
     assert demand_service.net_demand_gap(db_session, product_with_demand_and_open_po) == 150
+
+
+def test_net_demand_gap_counts_only_the_unfulfilled_part_of_a_partial_po(db_session, product_with_demand_and_open_po):
+    sku = product_with_demand_and_open_po
+    supplier_id = db_session.query(Supplier).filter(Supplier.product_sku == sku).one().id
+    # A partially fulfilled PO is still open, but only its remaining 200 units are incoming.
+    db_session.add(PurchaseOrder(product_sku=sku, supplier_id=supplier_id, qty=500,
+                                 fulfilled_qty=300, status="partially_fulfilled"))
+    db_session.commit()
+
+    # forecast 300 - on_hand 50 - (open 100 + remaining 200) = -50
+    assert demand_service.net_demand_gap(db_session, sku) == -50
+
+
+def test_net_demand_gap_ignores_closed_pos(db_session, product_with_demand_and_open_po):
+    sku = product_with_demand_and_open_po
+    supplier_id = db_session.query(Supplier).filter(Supplier.product_sku == sku).one().id
+    db_session.add(PurchaseOrder(product_sku=sku, supplier_id=supplier_id, qty=400, fulfilled_qty=400, status="fulfilled"))
+    db_session.add(PurchaseOrder(product_sku=sku, supplier_id=supplier_id, qty=400, status="rejected"))
+    db_session.commit()
+
+    assert demand_service.net_demand_gap(db_session, sku) == 150
