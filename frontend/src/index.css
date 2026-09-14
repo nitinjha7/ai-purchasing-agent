@@ -1,0 +1,14 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { margin: 0; padding: 24px; max-width: 960px; margin-inline: auto; }
+h1, h2 { font-weight: 600; }
+nav button { margin-right: 8px; padding: 8px 16px; cursor: pointer; }
+.card { border: 1px solid #ccc4; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.badge.accept, .badge.fulfilled, .badge.approved { background: #1a7f37; color: white; }
+.badge.modify, .badge.partially_fulfilled, .badge.pending_approval { background: #9a6700; color: white; }
+.badge.reject, .badge.rejected { background: #cf222e; color: white; }
+.badge.investigate, .badge.draft, .badge.submitted { background: #57606a; color: white; }
+.violation { color: #cf222e; }
+button.action { padding: 6px 14px; margin-right: 8px; cursor: pointer; }
+form.trigger-form { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+form.trigger-form input { padding: 6px; }
