@@ -7,3 +7,4 @@ frontend/dist/
 eval/results/*.json
 !eval/results/.gitkeep
 .venv/
+*.tsbuildinfo
