@@ -1,6 +1,6 @@
 import pytest
 
-from app.db.models import Budget, InventorySnapshot, Product, Supplier
+from app.db.models import Budget, InventorySnapshot, Product, PurchaseOrder, Supplier
 from app.domain.models import ProposedAction
 from app.services import validation_service
 
@@ -51,3 +51,45 @@ def test_non_po_actions_are_always_valid(db_session, full_setup):
     action = ProposedAction(action_type="no_action")
     verdict = validation_service.validate_proposal(db_session, action)
     assert verdict.is_valid is True
+
+
+def test_valid_amend_po_proposal_passes(db_session, full_setup):
+    # amend_po proposals carry only po_id and qty; sku/supplier come from the referenced PO.
+    po = PurchaseOrder(product_sku="SKU-V", supplier_id=full_setup, qty=100, status="submitted")
+    db_session.add(po)
+    db_session.commit()
+
+    action = ProposedAction(action_type="amend_po", po_id=po.id, qty=60)
+    verdict = validation_service.validate_proposal(db_session, action)
+
+    assert verdict.is_valid is True
+    assert verdict.violations == []
+
+
+def test_amend_po_below_moq_is_violation(db_session, full_setup):
+    po = PurchaseOrder(product_sku="SKU-V", supplier_id=full_setup, qty=100, status="submitted")
+    db_session.add(po)
+    db_session.commit()
+
+    action = ProposedAction(action_type="amend_po", po_id=po.id, qty=20)
+    verdict = validation_service.validate_proposal(db_session, action)
+
+    assert verdict.is_valid is False
+    assert any("minimum order" in v.lower() for v in verdict.violations)
+
+
+def test_amend_po_with_unknown_po_id_is_invalid_not_an_exception(db_session, full_setup):
+    action = ProposedAction(action_type="amend_po", po_id=9999, qty=60)
+
+    verdict = validation_service.validate_proposal(db_session, action)
+
+    assert verdict.is_valid is False
+    assert any("9999" in v for v in verdict.violations)
+
+
+def test_amend_po_without_po_id_is_invalid(db_session, full_setup):
+    action = ProposedAction(action_type="amend_po", qty=60)
+
+    verdict = validation_service.validate_proposal(db_session, action)
+
+    assert verdict.is_valid is False
