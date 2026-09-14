@@ -25,11 +25,20 @@ export const approvePurchaseOrder = (id: number) =>
 export const rejectPurchaseOrder = (id: number) =>
   request<PurchaseOrder>(`/purchase-orders/${id}/reject`, { method: "POST" });
 
-export const createPurchaseOrderFromProposal = (sku: string, supplierId: number, qty: number) =>
+export const createPurchaseOrderFromProposal = (agentRunId: number) =>
   request<PurchaseOrder>("/purchase-orders/from-proposal", {
     method: "POST",
-    body: JSON.stringify({ sku, supplier_id: supplierId, qty }),
+    body: JSON.stringify({ agent_run_id: agentRunId }),
   });
+
+export const amendPurchaseOrderFromProposal = (agentRunId: number) =>
+  request<PurchaseOrder>("/purchase-orders/from-amend-proposal", {
+    method: "POST",
+    body: JSON.stringify({ agent_run_id: agentRunId }),
+  });
+
+export const rejectAgentRun = (agentRunId: number) =>
+  request<AgentRun>(`/agent-runs/${agentRunId}/reject`, { method: "POST" });
 
 export const runRecommendationReview = (sku: string, recommendedQty: number) =>
   request<AgentRun>("/scenarios/recommendation-review", {

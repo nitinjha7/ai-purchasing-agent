@@ -10,6 +10,8 @@ interface Props {
 export function DecisionCard({ agentRun, onApprove, onReject }: Props) {
   const decision = agentRun.decision;
   const verdict = agentRun.validator_verdict;
+  const actionType = decision?.proposed_action?.action_type;
+  const isExecutable = actionType === "create_po" || actionType === "amend_po";
 
   return (
     <div className="card">
@@ -28,7 +30,10 @@ export function DecisionCard({ agentRun, onApprove, onReject }: Props) {
           <ul>{verdict.violations.map((v) => <li key={v}>{v}</li>)}</ul>
         </div>
       )}
-      {verdict?.is_valid && decision?.proposed_action?.action_type === "create_po" && onApprove && onReject && (
+      {agentRun.human_action && (
+        <p><strong>Buyer action:</strong> {agentRun.human_action}</p>
+      )}
+      {verdict?.is_valid && isExecutable && !agentRun.human_action && onApprove && onReject && (
         <div>
           <button className="action" onClick={onApprove}>Approve</button>
           <button className="action" onClick={onReject}>Reject</button>

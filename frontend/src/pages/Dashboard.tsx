@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { listAgentRuns, runRecommendationReview, runSupplierShortfall, approvePurchaseOrder, rejectPurchaseOrder, createPurchaseOrderFromProposal } from "../api/client";
+import { listAgentRuns, runRecommendationReview, runSupplierShortfall, approvePurchaseOrder, createPurchaseOrderFromProposal, amendPurchaseOrderFromProposal, rejectAgentRun } from "../api/client";
 import type { AgentRun } from "../types";
 import { DecisionCard } from "../components/DecisionCard";
 
@@ -39,10 +39,17 @@ export function Dashboard() {
 
   async function handleApprove(agentRun: AgentRun) {
     const action = agentRun.decision?.proposed_action;
-    if (action?.action_type === "create_po" && action.product_sku && action.supplier_id && action.qty) {
-      const po = await createPurchaseOrderFromProposal(action.product_sku, action.supplier_id, action.qty);
+    if (action?.action_type === "create_po") {
+      const po = await createPurchaseOrderFromProposal(agentRun.id);
       await approvePurchaseOrder(po.id);
+    } else if (action?.action_type === "amend_po") {
+      await amendPurchaseOrderFromProposal(agentRun.id);
     }
+    await refresh();
+  }
+
+  async function handleReject(agentRun: AgentRun) {
+    await rejectAgentRun(agentRun.id);
     await refresh();
   }
 
@@ -64,7 +71,7 @@ export function Dashboard() {
 
       <h2>Agent Runs</h2>
       {runs.map((run) => (
-        <DecisionCard key={run.id} agentRun={run} onApprove={() => handleApprove(run)} onReject={() => handleApprove(run)} />
+        <DecisionCard key={run.id} agentRun={run} onApprove={() => handleApprove(run)} onReject={() => handleReject(run)} />
       ))}
     </div>
   );
