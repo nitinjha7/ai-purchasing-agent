@@ -1,0 +1,9 @@
+.env
+*.db
+__pycache__/
+*.pyc
+node_modules/
+frontend/dist/
+eval/results/*.json
+!eval/results/.gitkeep
+.venv/
