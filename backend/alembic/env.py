@@ -7,7 +7,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.config import get_settings
-from app.db.base import Base
+from app.db.base import Base, _normalize_database_url
 import app.db.models  # noqa: F401  -- imported for its side effect of registering the tables
 
 # this is the Alembic Config object, which provides
@@ -22,7 +22,10 @@ if config.config_file_name is not None:
 # The database URL is owned by the application settings, not by alembic.ini, so both the
 # app and the migrations always target the same database. ALEMBIC_DATABASE_URL overrides
 # it (useful for autogenerating or smoke-testing against a throwaway file).
-config.set_main_option("sqlalchemy.url", os.getenv("ALEMBIC_DATABASE_URL") or get_settings().database_url)
+config.set_main_option(
+    "sqlalchemy.url",
+    _normalize_database_url(os.getenv("ALEMBIC_DATABASE_URL") or get_settings().database_url),
+)
 
 target_metadata = Base.metadata
 

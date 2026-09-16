@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import agent_runs, products, purchase_orders, scenarios
+from app.config import get_settings
 from app.db.base import Base, SessionLocal, engine
 from app.seed_data import seed
 
@@ -25,7 +26,7 @@ app = FastAPI(title="AI Purchasing Agent", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[get_settings().frontend_origin, "http://localhost:5173"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
