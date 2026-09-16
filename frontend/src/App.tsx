@@ -10,12 +10,25 @@ export default function App() {
 
   return (
     <div>
-      <h1>AI Purchasing Agent</h1>
-      <nav>
-        <button onClick={() => setTab("dashboard")}>Dashboard</button>
-        <button onClick={() => setTab("purchase-orders")}>Purchase Orders</button>
-      </nav>
-      {tab === "dashboard" ? <Dashboard /> : <PurchaseOrders />}
+      <header className="app-header">
+        <div className="brand">
+          <h1>Purchasing Desk</h1>
+        </div>
+        <p className="tagline">
+          Reviews purchase recommendations and supplier shortfalls, checks them against
+          budget, storage and supplier limits, and asks you to approve or reject before
+          anything is ordered.
+        </p>
+        <nav className="app-nav">
+          <button className={tab === "dashboard" ? "active" : ""} onClick={() => setTab("dashboard")}>
+            Run a review
+          </button>
+          <button className={tab === "purchase-orders" ? "active" : ""} onClick={() => setTab("purchase-orders")}>
+            Purchase orders
+          </button>
+        </nav>
+      </header>
+      <main>{tab === "dashboard" ? <Dashboard /> : <PurchaseOrders />}</main>
     </div>
   );
 }

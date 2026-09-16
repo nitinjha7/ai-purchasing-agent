@@ -8,11 +8,11 @@ export function ReasoningTimeline({ entries }: { entries: ToolCallLogEntry[] }) 
 
   return (
     <div>
-      <button className="action" onClick={() => setExpanded((v) => !v)}>
-        {expanded ? "Hide" : "Show"} reasoning timeline ({entries.length} tool calls)
+      <button className="timeline-toggle" onClick={() => setExpanded((v) => !v)}>
+        {expanded ? "Hide" : "Show"} what it checked ({entries.length})
       </button>
       {expanded && (
-        <ol>
+        <ol className="timeline">
           {entries.map((entry, index) => (
             <li key={index}>
               <code>{entry.tool}({JSON.stringify(entry.args)})</code>

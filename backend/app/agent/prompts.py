@@ -29,6 +29,9 @@ Use "modify" when the recommended quantity should change (e.g. due to budget,
 storage, or minimum order quantity constraints) and set proposed_action accordingly.
 Use "reject" when no purchase is warranted. Use "investigate" when you lack enough
 information or the situation is ambiguous even after using your tools.
+
+Write "reasoning" and "key_factors" the way a buyer would explain a decision to a
+colleague: short, plain sentences, concrete numbers, no filler. Do not use em dashes.
 """
 
 
