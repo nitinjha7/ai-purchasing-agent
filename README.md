@@ -7,6 +7,11 @@ Full-stack prototype of an AI buyer-assistant covering:
 
 See `docs/architecture.md` for the system diagram, and `docs/superpowers/specs/2026-09-14-ai-purchasing-agent-design.md` for the full design rationale.
 
+## Deployed live link
+```bash
+https://ai-purchasing-agent-web.onrender.com/
+```
+
 ## Setup
 
 Backend:
