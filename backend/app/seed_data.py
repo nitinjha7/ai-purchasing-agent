@@ -16,6 +16,10 @@ def seed(db: Session) -> None:
         Product(sku="SKU-300", name="Paper Towels 6-pack", category="household", unit_cost=3.00),
     ]
     db.add_all(products)
+    # Flushed separately: no relationship() links Product to the tables below, so
+    # SQLAlchemy can't infer insert ordering across them in one flush, and Postgres
+    # (unlike SQLite, which ignores FK violations by default) enforces the order.
+    db.flush()
 
     db.add_all([
         InventorySnapshot(product_sku="SKU-100", on_hand_qty=200, storage_capacity_units=5000, storage_used_units=1000),
